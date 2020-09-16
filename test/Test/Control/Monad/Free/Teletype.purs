@@ -4,24 +4,24 @@ import Prelude
 
 import Effect (Effect)
 import Effect.Console (log)
-import Control.Monad.Free (Free, foldFree, liftF)
+import Control.Monad.Free (Free, interpret, lift)
 
 data TeletypeF a = PutStrLn String a | GetLine (String -> a)
 
 type Teletype a = Free TeletypeF a
 
 putStrLn :: String -> Teletype Unit
-putStrLn s = liftF (PutStrLn s unit)
+putStrLn s = lift (PutStrLn s unit)
 
 getLine :: Teletype String
-getLine = liftF (GetLine identity)
+getLine = lift (GetLine identity)
 
 teletypeN :: TeletypeF ~> Effect
 teletypeN (PutStrLn s a) = const a <$> log s
 teletypeN (GetLine k) = pure (k "fake input")
 
 run :: Teletype ~> Effect
-run = foldFree teletypeN
+run = interpret teletypeN
 
 echo :: Teletype String
 echo = do

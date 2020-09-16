@@ -1,0 +1,1 @@
+- Reorganize `Compat` modules so they import as much as possible from other modules
