@@ -1,5 +1,6 @@
 -- | The _cofree comonad_ for a `Functor`.
-module Control.Comonad.Cofree
+
+module Control.Comonad.Cofree.Compat
   ( Cofree
   , deferCofree
   , mkCofree, (:<)
@@ -17,7 +18,7 @@ import Control.Alternative (class Alternative, (<|>), empty)
 import Control.Comonad (class Comonad, extract)
 import Control.Extend (class Extend)
 import Control.Lazy as Z
-import Control.Monad.Free (Free, run)
+import Control.Monad.Free.Compat (Free, runFreeM)
 import Control.Monad.Rec.Class (class MonadRec)
 import Control.Monad.State (State, StateT(..), runState, runStateT, state)
 import Data.Eq (class Eq1, eq1)
@@ -94,7 +95,7 @@ explore
   -> Cofree g a
   -> b
 explore pair m w =
-    case runState (run step m) w of
+    case runState (runFreeM step m) w of
       Tuple f cof -> f (extract cof)
   where
     step :: f (Free f (a -> b)) -> State (Cofree g a) (Free f (a -> b))
@@ -110,7 +111,7 @@ exploreM
   -> Cofree g a
   -> m b
 exploreM pair m w =
-  eval <$> runStateT (run step m) w
+  eval <$> runStateT (runFreeM step m) w
   where
     step :: f (Free f (a -> b)) -> StateT (Cofree g a) m (Free f (a -> b))
     step ff = StateT \cof -> pair (map Tuple ff) (tail cof)

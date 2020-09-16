@@ -1,7 +1,7 @@
 -- | A _trampoline_ monad, which can be used at the bottom of
 -- | a monad transformer stack to avoid stack overflows in large
 -- | monadic computations.
-module Control.Monad.Trampoline
+module Control.Monad.Trampoline.Compat
   ( Trampoline
   , done
   , delay
@@ -10,7 +10,7 @@ module Control.Monad.Trampoline
 
 import Prelude
 
-import Control.Monad.Free (Free, lift, runPure)
+import Control.Monad.Free.Compat (Free, liftF, runFree)
 
 -- | The `Trampoline` monad
 -- |
@@ -24,8 +24,8 @@ done = pure
 
 -- | Use the `Trampoline` monad to represent the delayed evaluation of a value.
 delay :: forall a. (Unit -> a) -> Trampoline a
-delay = lift
+delay = liftF
 
 -- | Run a computation in the `Trampoline` monad.
 runTrampoline :: forall a. Trampoline a -> a
-runTrampoline = runPure (_ $ unit)
+runTrampoline = runFree (_ $ unit)
